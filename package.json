@@ -1,7 +1,7 @@
 {
-  "name": "ib-api-services-training-chatgpt-massive",
+  "name": "ib-api-services-training-chatgpt-accelerator-apply",
   "version": "0.1.0",
-  "description": "Subscribes email to chatgpt-training-business-owners-only sequence, and sends welcome email",
+  "description": "Processes application for AI Accelerator",
   "author": "Costa Michailidis <costa@innovationbound.com> (http://www.github.com/wamoyo)",
   "main": "index.js",
   "private": true,
@@ -18,6 +18,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wamoyo/ib-api-services-training-chatgpt-massive.git"
+    "url": "git+https://github.com/wamoyo/ib-api-services-training-chatgpt-accelerator-apply.git"
   }
 }

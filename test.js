@@ -6,12 +6,14 @@
 var lambda = require('./index.js').handler
 
 // Should Work
-var subscription = {
+var application = {
+  "name": "Costa Michailidis",
   "email": "costa@innovationbound.com",
-  "list": "chatgpt-training-business-owners-only"
+  "website": "https://www.innovationbound.com",
+  "linkedin": "https://www.linkedin.com/in/costamichailidis"
 }
 // The curly braces below create an object, remember ; )
-lambda({body: JSON.stringify({subscription})}).then( console.log ).catch( console.log )
+lambda({body: JSON.stringify({application})}).then( console.log ).catch( console.log )
 
 // Missing Info
 
