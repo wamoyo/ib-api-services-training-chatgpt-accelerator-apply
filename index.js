@@ -5,14 +5,17 @@
  * Reads email, creates db entry, sends confirmation email, responds {event.body.confirmation}
  */
 
-var fs = require('fs').promises
-var aws = require('aws-sdk')
-    aws.config.update({region: 'us-east-1'})
-var ses = new aws.SES()
-var db = new aws.DynamoDB.DocumentClient()
+import { readFile } from 'fs/promises'
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { DynamoDBDocumentClient, PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
+
+var ses = new SESClient({ region: 'us-east-1' })
+var dynamoDb = new DynamoDBClient({ region: 'us-east-1' })
+var db = DynamoDBDocumentClient.from(dynamoDb)
 var replyToAddress = "Innovation Bound <support@innovationbound.com>"
 
-exports.handler = async function (event) {
+export async function handler (event) {
   if (event.httpMethod === 'OPTIONS') return respond(204) // For OPTIONS preflight
   try {
     var json = JSON.parse(event.body)
@@ -20,20 +23,23 @@ exports.handler = async function (event) {
     var email = json.application.email ?? null
     var website = json.application.website ?? null
     var linkedin = json.application.linkedin ?? null
+    var assistance = json.application.assistance ?? null
 
     // Validate incoming data
-    console.log(`Validating email sequence application for ${email} to ${list}.`)
+    console.log(`Validating application info for ${email || '(no email provided)'}.`)
 
     if (!name) return respond(400, {error: 'Name is required.'})
     if (!email) return respond(400, {error: 'Email is required.'})
     if (email.match(/@/) == null) return respond(400, {error: 'Please provide a valid email.'})
     if (!website) return respond(400, {error: 'Company Website is required.'})
     if (!linkedin) return respond(400, {error: 'LinkedIn Profile is required.'})
+    if (assistance === null || assistance === undefined) return respond(400, {error: 'Assistance is required.'})
 
-    var applicant = await db.get({
+    // Check if the company already has an application in
+    var applicant = await db.send(new GetCommand({
       TableName: "www.innovationbound.com",
       Key: { pk: `application#ai-accelerator`, sk: email }
-    }).promise()
+    }))
 
     if (applicant.Item) {
       return respond(400, {error: 'You have already applied to the the 2026 AI Accelerator.'})
@@ -42,14 +48,38 @@ exports.handler = async function (event) {
     // Email data
     console.log(`Sending confirmation email to ${email}.`)
 
-    var rawHtml = await fs.readFile("email.html", "utf8")
-    var rawTxt = await fs.readFile("email.txt", "utf8")
+    var rawHtml = await readFile("email.html", "utf8")
+    var rawTxt = await readFile("email.txt", "utf8")
 
-    // Replace {{unsubscribe}} and {{niche}}
-    var html = rawHtml.replace(/{{emailSettings}}/, `https://www.innovationbound.com/unsubscribe?email=${email}&list=${list}&edition=0`)
-    var txt = rawTxt.replace(/{{emailSettings}}/, `https://www.innovationbound.com/unsubscribe?email=${email}&list=${list}&edition=0`)
+    // Calculate assistance amount
+    var assistanceAmounts = {
+      '0': '$0',
+      '25': '$7,500',
+      '50': '$15,000',
+      '75': '$22,500'
+    }
+    var assistanceAmount = assistanceAmounts[assistance] || '$0'
 
-    var confirm = await ses.sendEmail({
+    // Replace template variables
+    var html = rawHtml
+      .replace(/{{emailSettings}}/g, `https://www.innovationbound.com/unsubscribe?email=${email}`)
+      .replace(/{{name}}/g, name)
+      .replace(/{{email}}/g, email)
+      .replace(/{{website}}/g, website)
+      .replace(/{{linkedin}}/g, linkedin)
+      .replace(/{{assistancePercent}}/g, assistance)
+      .replace(/{{assistanceAmount}}/g, assistanceAmount)
+
+    var txt = rawTxt
+      .replace(/{{emailSettings}}/g, `https://www.innovationbound.com/unsubscribe?email=${email}`)
+      .replace(/{{name}}/g, name)
+      .replace(/{{email}}/g, email)
+      .replace(/{{website}}/g, website)
+      .replace(/{{linkedin}}/g, linkedin)
+      .replace(/{{assistancePercent}}/g, assistance)
+      .replace(/{{assistanceAmount}}/g, assistanceAmount)
+
+    var confirm = await ses.send(new SendEmailCommand({
       Destination: { ToAddresses: [email] },
       Message: {
         Body: {
@@ -59,13 +89,12 @@ exports.handler = async function (event) {
         Subject: { Charset: "UTF-8", Data: `📋 Application Confirmed for Innovation Bound's 2026 AI Accelerator - We'll respond in 3 days` }
       },
       ReplyToAddresses: [replyToAddress],
-      ReturnPath: replyToAddress,
       Source: replyToAddress
-    }).promise()
+    }))
 
 
     // Store list application
-    var applied = await db.put({
+    var applied = await db.send(new PutCommand({
       TableName: "www.innovationbound.com",
       Item: {
         pk: `application#ai-accelerator`,
@@ -73,17 +102,18 @@ exports.handler = async function (event) {
         name: name,
         email: email,
         website: website,
-        linkedinlinkedinemail,
+        linkedin: linkedin,
+        assistance: assistance,
         applied: new Date().toJSON()
       }
-    }).promise()
+    }))
 
 
     // Respond
     return respond(200, {message: `Application confirmed for ${name}, ${email}.`})
   } catch (error) {
     console.log(error)
-    return respond(500, {error: `500 - Something went wrong with ${email || ''}'s application for the 2026 AI Accelerator.`})
+    return respond(500, {error: `500 - Something went wrong with ${email || '(no email provided)'}'s application for the 2026 AI Accelerator.`})
   }
 }
 

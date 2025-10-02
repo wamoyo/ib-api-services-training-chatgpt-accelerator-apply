@@ -4,9 +4,12 @@
   "description": "Processes application for AI Accelerator",
   "author": "Costa Michailidis <costa@innovationbound.com> (http://www.github.com/wamoyo)",
   "main": "index.js",
+  "type": "module",
   "private": true,
   "dependencies": {
-    "aws-sdk": "^2.799.0"
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/client-ses": "^3.0.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0"
   },
   "scripts": {
     "zip": "zip -r lambda.zip index.js email.html email.txt node_modules/ package*",
