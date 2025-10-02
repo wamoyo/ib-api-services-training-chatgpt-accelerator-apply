@@ -16,9 +16,11 @@ var db = DynamoDBDocumentClient.from(dynamoDb)
 var replyToAddress = "Innovation Bound <support@innovationbound.com>"
 
 export async function handler (event) {
+  console.log('EVENT:', JSON.stringify(event))
   if (event.httpMethod === 'OPTIONS') return respond(204) // For OPTIONS preflight
   try {
-    var json = JSON.parse(event.body)
+    // Event is already parsed JSON from API Gateway
+    var json = event.body ? JSON.parse(event.body) : event
     var name = json.application.name ?? null
     var email = json.application.email ?? null
     var website = json.application.website ?? null
@@ -42,7 +44,7 @@ export async function handler (event) {
     }))
 
     if (applicant.Item) {
-      return respond(400, {error: 'You have already applied to the the 2026 AI Accelerator.'})
+      return respond(400, {error: 'You have already applied to the 2026 AI Accelerator.'})
     }
 
     // Email data
