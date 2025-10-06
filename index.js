@@ -36,6 +36,11 @@ export async function handler (event) {
     if (!website) return respond(400, {error: 'Company Website is required.'})
     if (!linkedin) return respond(400, {error: 'LinkedIn Profile is required.'})
     if (assistance === null || assistance === undefined) return respond(400, {error: 'Assistance is required.'})
+    if (![0, 25, 50, 75].includes(Number(assistance))) return respond(400, {error: 'Assistance must be 0, 25, 50, or 75.'})
+    if (name.length > 2000) return respond(400, {error: 'Name must be 2000 characters or less.'})
+    if (email.length > 2000) return respond(400, {error: 'Email must be 2000 characters or less.'})
+    if (website.length > 2000) return respond(400, {error: 'Company Website must be 2000 characters or less.'})
+    if (linkedin.length > 2000) return respond(400, {error: 'LinkedIn Profile must be 2000 characters or less.'})
 
     // Check if the company already has an application in
     var applicant = await db.send(new GetCommand({
