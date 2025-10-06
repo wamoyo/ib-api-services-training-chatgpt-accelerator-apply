@@ -12,6 +12,9 @@ Application Information:
 - LinkedIn Profile: {{linkedin}}
 - Financial Assistance Requested: {{assistancePercent}}% ({{assistanceAmount}})
 
+📄 GET THE FULL PROGRAM OVERVIEW (PDF) »
+https://www.innovationbound.com/pdfs/2026-AI-Accelerator-Full-Program-Overview.pdf
+
 Feel free to follow us on LinkedIn for now (https://www.linkedin.com/company/innovation-bound/),
 or visit our website (https://www.innovationbound.com) to learn more about us.
 

@@ -64,6 +64,7 @@ export async function handler (event) {
 
     // Replace template variables
     var html = rawHtml
+      .replace(/{{tracking}}/g, `email=${email}&list=ai-accelerator-application&edition=confirmation`)
       .replace(/{{emailSettings}}/g, `https://www.innovationbound.com/unsubscribe?email=${email}`)
       .replace(/{{name}}/g, name)
       .replace(/{{email}}/g, email)
@@ -73,6 +74,7 @@ export async function handler (event) {
       .replace(/{{assistanceAmount}}/g, assistanceAmount)
 
     var txt = rawTxt
+      .replace(/{{tracking}}/g, `email=${email}&list=ai-accelerator-application&edition=confirmation`)
       .replace(/{{emailSettings}}/g, `https://www.innovationbound.com/unsubscribe?email=${email}`)
       .replace(/{{name}}/g, name)
       .replace(/{{email}}/g, email)
@@ -91,7 +93,7 @@ export async function handler (event) {
           Html: { Charset: "UTF-8", Data: html },
           Text: { Charset: "UTF-8", Data: txt }
         },
-        Subject: { Charset: "UTF-8", Data: `📋 Application Confirmed for Innovation Bound's 2026 AI Accelerator - We'll respond in 3 days` }
+        Subject: { Charset: "UTF-8", Data: `📋 Application Confirmed for Innovation Bound's 2026 AI Accelerator - We'll respond within 3 days` }
       },
       ReplyToAddresses: [replyToAddress],
       Source: replyToAddress
