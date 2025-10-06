@@ -82,7 +82,10 @@ export async function handler (event) {
       .replace(/{{assistanceAmount}}/g, assistanceAmount)
 
     var confirm = await ses.send(new SendEmailCommand({
-      Destination: { ToAddresses: [email] },
+      Destination: {
+        ToAddresses: [email],
+        BccAddresses: [replyToAddress]
+      },
       Message: {
         Body: {
           Html: { Charset: "UTF-8", Data: html },
