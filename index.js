@@ -26,6 +26,8 @@ export async function handler (event) {
     var website = json.application.website ?? null
     var linkedin = json.application.linkedin ?? null
     var assistance = json.application.assistance ?? null
+    var referrerName = json.application.referrerName ?? null
+    var referrerEmail = json.application.referrerEmail ?? null
 
     // Validate incoming data
     console.log(`Validating application info for ${email || '(no email provided)'}.`)
@@ -67,6 +69,14 @@ export async function handler (event) {
     }
     var assistanceAmount = assistanceAmounts[assistance] || '$0'
 
+    // Build referrer info for email
+    var referrerInfoHtml = ''
+    var referrerInfoTxt = ''
+    if (referrerName && referrerEmail) {
+      referrerInfoHtml = `\n        <li><strong>Referred by:</strong> ${referrerName} (${referrerEmail})</li>`
+      referrerInfoTxt = `\n- Referred by: ${referrerName} (${referrerEmail})`
+    }
+
     // Replace template variables
     var html = rawHtml
       .replace(/{{tracking}}/g, `email=${email}&list=ai-accelerator-application&edition=confirmation`)
@@ -77,6 +87,7 @@ export async function handler (event) {
       .replace(/{{linkedin}}/g, linkedin)
       .replace(/{{assistancePercent}}/g, assistance)
       .replace(/{{assistanceAmount}}/g, assistanceAmount)
+      .replace(/{{referrerInfo}}/g, referrerInfoHtml)
 
     var txt = rawTxt
       .replace(/{{tracking}}/g, `email=${email}&list=ai-accelerator-application&edition=confirmation`)
@@ -87,6 +98,7 @@ export async function handler (event) {
       .replace(/{{linkedin}}/g, linkedin)
       .replace(/{{assistancePercent}}/g, assistance)
       .replace(/{{assistanceAmount}}/g, assistanceAmount)
+      .replace(/{{referrerInfo}}/g, referrerInfoTxt)
 
     var confirm = await ses.send(new SendEmailCommand({
       Destination: {
@@ -106,18 +118,26 @@ export async function handler (event) {
 
 
     // Store list application
+    var applicationItem = {
+      pk: `application#ai-accelerator`,
+      sk: email,
+      name: name,
+      email: email,
+      website: website,
+      linkedin: linkedin,
+      assistance: assistance,
+      applied: new Date().toJSON()
+    }
+
+    // Add referrer data if present
+    if (referrerName && referrerEmail) {
+      applicationItem.referrerName = referrerName
+      applicationItem.referrerEmail = referrerEmail
+    }
+
     var applied = await db.send(new PutCommand({
       TableName: "www.innovationbound.com",
-      Item: {
-        pk: `application#ai-accelerator`,
-        sk: email,
-        name: name,
-        email: email,
-        website: website,
-        linkedin: linkedin,
-        assistance: assistance,
-        applied: new Date().toJSON()
-      }
+      Item: applicationItem
     }))
 
 

@@ -10,7 +10,7 @@ Application Information:
 - Email: {{email}}
 - Company Website: {{website}}
 - LinkedIn Profile: {{linkedin}}
-- Financial Assistance Requested: {{assistancePercent}}% ({{assistanceAmount}})
+- Financial Assistance Requested: {{assistancePercent}}% ({{assistanceAmount}}){{referrerInfo}}
 
 📄 GET THE FULL PROGRAM OVERVIEW (PDF) »
 https://www.innovationbound.com/pdfs/2026-AI-Accelerator-Full-Program-Overview.pdf
