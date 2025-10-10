@@ -57,8 +57,8 @@ export async function handler (event) {
     // Email data
     console.log(`Sending confirmation email to ${email}.`)
 
-    var rawHtml = await readFile("email.html", "utf8")
-    var rawTxt = await readFile("email.txt", "utf8")
+    var rawHtml = await readFile("apply-confirmation.html", "utf8")
+    var rawTxt = await readFile("apply-confirmation.txt", "utf8")
 
     // Calculate assistance amount
     var assistanceAmounts = {
@@ -79,7 +79,7 @@ export async function handler (event) {
 
     // Replace template variables
     var html = rawHtml
-      .replace(/{{tracking}}/g, `email=${email}&list=ai-accelerator-application&edition=confirmation`)
+      .replace(/{{tracking}}/g, `email=${email}&list=ai-accelerator-applications&edition=apply-confirmation`)
       .replace(/{{emailSettings}}/g, `https://www.innovationbound.com/unsubscribe?email=${email}`)
       .replace(/{{name}}/g, name)
       .replace(/{{email}}/g, email)
@@ -90,7 +90,7 @@ export async function handler (event) {
       .replace(/{{referrerInfo}}/g, referrerInfoHtml)
 
     var txt = rawTxt
-      .replace(/{{tracking}}/g, `email=${email}&list=ai-accelerator-application&edition=confirmation`)
+      .replace(/{{tracking}}/g, `email=${email}&list=ai-accelerator-applications&edition=apply-confirmation`)
       .replace(/{{emailSettings}}/g, `https://www.innovationbound.com/unsubscribe?email=${email}`)
       .replace(/{{name}}/g, name)
       .replace(/{{email}}/g, email)
