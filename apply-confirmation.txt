@@ -10,6 +10,7 @@ Application Information:
 - Email: {{email}}
 - Company Website: {{website}}
 - LinkedIn Profile: {{linkedin}}
+- Tech Savvy: {{techLevel}}
 - Financial Assistance Requested: {{assistancePercent}}% ({{assistanceAmount}}){{referrerInfo}}
 
 📄 GET THE FULL PROGRAM OVERVIEW (PDF) »

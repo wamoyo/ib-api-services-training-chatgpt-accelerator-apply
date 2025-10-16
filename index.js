@@ -28,6 +28,7 @@ export async function handler (event) {
     var assistance = json.application.assistance ?? null
     var referrerName = json.application.referrerName ?? null
     var referrerEmail = json.application.referrerEmail ?? null
+    var techLevel = json.application.techLevel ?? null
 
     // Validate incoming data
     console.log(`Validating application info for ${email || '(no email provided)'}.`)
@@ -39,6 +40,7 @@ export async function handler (event) {
     if (!linkedin) return respond(400, {error: 'LinkedIn Profile is required.'})
     if (assistance === null || assistance === undefined) return respond(400, {error: 'Assistance is required.'})
     if (![0, 25, 50, 75].includes(Number(assistance))) return respond(400, {error: 'Assistance must be 0, 25, 50, or 75.'})
+    if (techLevel !== null && techLevel !== '' && !['beginner', 'intermediate', 'advanced'].includes(techLevel)) return respond(400, {error: 'Tech level must be beginner, intermediate, or advanced.'})
     if (name.length > 2000) return respond(400, {error: 'Name must be 2000 characters or less.'})
     if (email.length > 2000) return respond(400, {error: 'Email must be 2000 characters or less.'})
     if (website.length > 2000) return respond(400, {error: 'Company Website must be 2000 characters or less.'})
@@ -69,6 +71,9 @@ export async function handler (event) {
     }
     var assistanceAmount = assistanceAmounts[assistance] || '$0'
 
+    // Format tech level for email
+    var techLevelDisplay = techLevel && techLevel !== '' ? techLevel.charAt(0).toUpperCase() + techLevel.slice(1) : 'Not Specified'
+
     // Build referrer info for email
     var referrerInfoHtml = ''
     var referrerInfoTxt = ''
@@ -85,6 +90,7 @@ export async function handler (event) {
       .replace(/{{email}}/g, email)
       .replace(/{{website}}/g, website)
       .replace(/{{linkedin}}/g, linkedin)
+      .replace(/{{techLevel}}/g, techLevelDisplay)
       .replace(/{{assistancePercent}}/g, assistance)
       .replace(/{{assistanceAmount}}/g, assistanceAmount)
       .replace(/{{referrerInfo}}/g, referrerInfoHtml)
@@ -96,6 +102,7 @@ export async function handler (event) {
       .replace(/{{email}}/g, email)
       .replace(/{{website}}/g, website)
       .replace(/{{linkedin}}/g, linkedin)
+      .replace(/{{techLevel}}/g, techLevelDisplay)
       .replace(/{{assistancePercent}}/g, assistance)
       .replace(/{{assistanceAmount}}/g, assistanceAmount)
       .replace(/{{referrerInfo}}/g, referrerInfoTxt)
@@ -133,6 +140,11 @@ export async function handler (event) {
     if (referrerName && referrerEmail) {
       applicationItem.referrerName = referrerName
       applicationItem.referrerEmail = referrerEmail
+    }
+
+    // Add techLevel if present
+    if (techLevel && techLevel !== '') {
+      applicationItem.techLevel = techLevel
     }
 
     var applied = await db.send(new PutCommand({

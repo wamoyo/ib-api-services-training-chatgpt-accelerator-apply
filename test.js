@@ -11,7 +11,8 @@ var application = {
   "email": "costa@innovationbound.com",
   "website": "https://www.innovationbound.com",
   "linkedin": "https://www.linkedin.com/in/costamichailidis",
-  "assistance": "50"
+  "assistance": "50",
+  "techLevel": "advanced"
 }
 // The curly braces below create an object, remember ; )
 lambda({body: JSON.stringify({application})}).then( console.log ).catch( console.log )
