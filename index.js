@@ -22,12 +22,12 @@ export async function handler (event) {
     // Event is already parsed JSON from API Gateway
     var json = event.body ? JSON.parse(event.body) : event
     var name = json.application.name ?? null
-    var email = json.application.email ?? null
+    var email = json.application.email?.toLowerCase() ?? null
     var website = json.application.website ?? null
     var linkedin = json.application.linkedin ?? null
     var assistance = json.application.assistance ?? null
     var referrerName = json.application.referrerName ?? null
-    var referrerEmail = json.application.referrerEmail ?? null
+    var referrerEmail = json.application.referrerEmail?.toLowerCase() ?? null
     var techLevel = json.application.techLevel ?? null
 
     // Validate incoming data
